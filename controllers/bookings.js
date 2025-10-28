@@ -14,9 +14,12 @@ async function getNextBookingId() {
 
 exports.createBooking = async (req, res) => {
   try {
-    const { name, email, phone, date, notes, minutes, outfits, category } = req.body;
+    const { name, email, phone, date, notes, minutes, outfits, category } =
+      req.body;
     if (!name || !email || !date || !category)
-      return res.status(400).json({ error: "name, email, date and category are required" });
+      return res
+        .status(400)
+        .json({ error: "name, email, date and category are required" });
 
     // price mapping by category (you can adjust these values)
     const priceMap = {
@@ -51,7 +54,7 @@ exports.createBooking = async (req, res) => {
 exports.getBookingById = async (req, res) => {
   try {
     let { id } = req.params; // accept either 'SVN-001' or '001'
-    if (id && id.startsWith('SVN-')) id = id.replace(/^SVN-/, '');
+    if (id && id.startsWith("SVN-")) id = id.replace(/^SVN-/, "");
     const booking = await Booking.findOne({ bookingId: id });
     if (!booking) return res.status(404).json({ error: "not found" });
     return res.json(booking);
