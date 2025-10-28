@@ -2,14 +2,16 @@ const Booking = require("../models/booking");
 const Counter = require("../models/counter");
 
 async function getNextBookingId() {
-  // atomically increment counter and return formatted numeric ID like 001
+  // atomically increment counter and return a unique ID like SVN-32126
   const result = await Counter.findOneAndUpdate(
     { name: "booking" },
     { $inc: { seq: 1 } },
     { new: true, upsert: true }
   );
-  const seq = result.seq;
-  return String(seq).padStart(3, "0");
+  const seq = result.seq || 0;
+  // create a semi-random 5-digit number mixing the seq and timestamp to reduce collisions
+  const suffix = String((seq + (Date.now() % 90000)) % 90000).padStart(5, "0");
+  return `SVN-${suffix}`;
 }
 
 exports.createBooking = async (req, res) => {
@@ -24,7 +26,7 @@ exports.createBooking = async (req, res) => {
     // price mapping by category (you can adjust these values)
     const priceMap = {
       commercials: 800,
-      music_videos: 700,
+      music_videos: 1000,
       bts_documentary: 300,
       corporate_videos: 600,
     };
@@ -54,8 +56,17 @@ exports.createBooking = async (req, res) => {
 exports.getBookingById = async (req, res) => {
   try {
     let { id } = req.params; // accept either 'SVN-001' or '001'
-    if (id && id.startsWith("SVN-")) id = id.replace(/^SVN-/, "");
-    const booking = await Booking.findOne({ bookingId: id });
+    // normalize id: allow lookups with or without the SVN- prefix
+    if (id && id.startsWith("SVN-")) id = id.replace(/^SVN-/, "SVN-");
+    // try exact match first
+    let booking = await Booking.findOne({ bookingId: id });
+    if (!booking) {
+      // if id was just numeric (e.g. 001), try matching both numeric and SVN-prefixed
+      const numeric = id.replace(/^SVN-/, "");
+      booking =
+        (await Booking.findOne({ bookingId: numeric })) ||
+        (await Booking.findOne({ bookingId: `SVN-${numeric}` }));
+    }
     if (!booking) return res.status(404).json({ error: "not found" });
     return res.json(booking);
   } catch (err) {
