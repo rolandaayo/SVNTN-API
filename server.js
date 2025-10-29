@@ -25,8 +25,7 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-const MONGODB_URI =
-  process.env.MONGODB_URI ;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

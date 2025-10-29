@@ -1,5 +1,9 @@
 const Booking = require("../models/booking");
 const Counter = require("../models/counter");
+const {
+  sendBookingConfirmation,
+  sendBookingNotification,
+} = require("../lib/emailService");
 
 async function getNextBookingId() {
   // atomically increment counter and return a unique ID like SVN-32126
@@ -46,6 +50,22 @@ exports.createBooking = async (req, res) => {
       notes,
     });
     await booking.save();
+
+    // Send emails after successful booking creation
+    try {
+      // Send confirmation email to customer
+      await sendBookingConfirmation(booking);
+
+      // Send notification email to owner
+      await sendBookingNotification(booking);
+
+      console.log(`Emails sent successfully for booking ${bookingId}`);
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      // Don't fail the booking creation if email fails
+      // You might want to implement a retry mechanism or queue here
+    }
+
     return res.status(201).json(booking);
   } catch (err) {
     console.error("createBooking error", err);
