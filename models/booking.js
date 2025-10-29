@@ -11,12 +11,7 @@ const BookingSchema = new mongoose.Schema(
     outfits: { type: Number, default: 1 },
     category: {
       type: String,
-      enum: [
-        "commercials",
-        "music_videos",
-        "bts_documentary",
-        "corporate_videos",
-      ],
+      enum: ["commercials", "music_videos", "bts_documentary"],
       required: true,
     },
     price: { type: Number, default: 0 },

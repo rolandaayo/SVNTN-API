@@ -27,12 +27,11 @@ exports.createBooking = async (req, res) => {
         .status(400)
         .json({ error: "name, email, date and category are required" });
 
-    // price mapping by category (you can adjust these values)
+    // price mapping by category in Naira
     const priceMap = {
-      commercials: 800,
-      music_videos: 1000,
-      bts_documentary: 300,
-      corporate_videos: 600,
+      commercials: 350000,
+      music_videos: 450000,
+      bts_documentary: 150000,
     };
     const price = priceMap[category] || 0;
 
