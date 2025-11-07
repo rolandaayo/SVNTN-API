@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 
 const bookingsRouter = require("./routes/bookings");
+const paymentsRouter = require("./routes/payments");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(morgan("dev"));
 
 // mount API
 app.use("/api/bookings", bookingsRouter);
+app.use("/api/payments", paymentsRouter);
 
 // health
 app.get("/_health", (req, res) => res.json({ ok: true }));
