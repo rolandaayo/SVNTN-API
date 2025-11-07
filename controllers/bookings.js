@@ -50,20 +50,8 @@ exports.createBooking = async (req, res) => {
     });
     await booking.save();
 
-    // Send emails after successful booking creation
-    try {
-      // Send confirmation email to customer
-      await sendBookingConfirmation(booking);
-
-      // Send notification email to owner
-      await sendBookingNotification(booking);
-
-      console.log(`Emails sent successfully for booking ${bookingId}`);
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      // Don't fail the booking creation if email fails
-      // You might want to implement a retry mechanism or queue here
-    }
+    // DON'T send emails here - wait for payment confirmation
+    // Emails will be sent after successful payment in the payment verification endpoint
 
     return res.status(201).json(booking);
   } catch (err) {
